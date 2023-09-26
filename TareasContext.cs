@@ -13,9 +13,9 @@ public class TareasContext: DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Categoria>(categoria=>{
-            new Categoria { Id = 1, Nombre = "Trabajo" },
-            new Categoria { Id = 2, Nombre = "Estudios" },
-            new Categoria { Id = 3, Nombre = "Personal" }
+            categoria.ToTable("Categoria");
+            categoria.HasKey(p=>p.CategoriaId);
+            categoria.Property(c=>c.Nombre).HasMaxLength(150).IsRequired();
        });
     }
 }
