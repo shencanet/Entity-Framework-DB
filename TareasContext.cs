@@ -16,6 +16,7 @@ public class TareasContext: DbContext
             categoria.ToTable("Categoria");
             categoria.HasKey(p=>p.CategoriaId);
             categoria.Property(c=>c.Nombre).HasMaxLength(150).IsRequired();
+            categoria.Property(p=>p.Descripcion).HasMaxLength(500);
        });
     }
 }
