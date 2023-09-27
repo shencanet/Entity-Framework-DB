@@ -12,7 +12,10 @@ dotnet run
 
 dotnet build
 
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add InitialCreate ---si falla falta libreria nuget
+nuget.org buscar ef design---> Micro entity framework core design
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 8.0.0-rc.1.23419.6
+
 
 dotnet ef migrations add MyMigration
 
