@@ -18,3 +18,7 @@ dotnet ef migrations add MyMigration
 
 dotnet ef database update
 
+dotnet ef si falla la aplicacion no esta instalada
+dotnet tool install --global dotnet-ef --version 7.0.11 09/2023
+
+
