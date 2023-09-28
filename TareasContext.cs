@@ -17,6 +17,7 @@ public class TareasContext: DbContext
             categoria.HasKey(p=>p.CategoriaId);
             categoria.Property(c=>c.Nombre).HasMaxLength(150).IsRequired();
             categoria.Property(p=>p.Descripcion).HasMaxLength(500);
+            categoria.Property(p=>p.Peso).HasDefaultValue(0);
        });
 
         modelBuilder.Entity<Tarea>(tarea=>{
