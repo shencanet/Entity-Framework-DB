@@ -12,6 +12,12 @@ public class TareasContext: DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
+       List<Category> categoryList = new List<Category>();
+        categoryList.Add(new Category() { CategoryId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657"), Name = "Pending activities", Effort = 20});
+        categoryList.Add(new Category() { CategoryId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"), Name = "Personal activities", Effort = 50});
+
+    categoriasInit.Add(new Categoria() { CategoriaId = Guid.Parse('')});
         modelBuilder.Entity<Categoria>(categoria=>{
             categoria.ToTable("Categoria");
             categoria.HasKey(p=>p.CategoriaId);
