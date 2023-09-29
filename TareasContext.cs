@@ -14,8 +14,8 @@ public class TareasContext: DbContext
     {
 
        List<Categoria> categoryList = new List<Categoria>();
-        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657"), Name = "Pending activities", Effort = 20});
-        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"), Name = "Personal activities", Effort = 50});
+        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657")});
+        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"),});
 
     categoryList.Add(new Categoria() { CategoriaId = Guid.Parse('')});
         modelBuilder.Entity<Categoria>(categoria=>{
