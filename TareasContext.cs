@@ -1,39 +1,61 @@
 using Microsoft.EntityFrameworkCore;
-using proyectoef.Models;
+using projectef.Models;
 
-namespace proyectoef;
+namespace projectef;
 
-public class TareasContext: DbContext
-{
-    public DbSet<Categoria> Categorias {get;set;}
-    public DbSet<Tarea> Tareas {get;set;}
+public class TareasContext : DbContext {
 
-    public TareasContext(DbContextOptions<TareasContext> options) :base(options) { }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    public DbSet<Categoria> Categorias { get; set; }
+    public DbSet<Tarea> Tareas { get; set; }
 
-       List<Categoria> categoryList = new List<Categoria>();
-        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657")});
-        categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"),});
+    public TareasContext(DbContextOptions<TareasContext> options) : base(options){}
 
-    categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("fab3c6b5-7b27-47be-a3c9-c997f2b7067b")});
-        modelBuilder.Entity<Categoria>(categoria=>{
-            categoria.ToTable("Categoria");
-            categoria.HasKey(p=>p.CategoriaId);
-            categoria.Property(c=>c.Nombre).HasMaxLength(150).IsRequired();
-            categoria.Property(p=>p.Descripcion).HasMaxLength(500);
-            categoria.Property(p=>p.Peso).HasDefaultValue(0);
-       });
+    protected override void OnModelCreating(ModelBuilder modelBuilder){
 
-        modelBuilder.Entity<Tarea>(tarea=>{
-            tarea.ToTable("Tarea");
-            tarea.HasKey(p=>p.TareaId);
-            tarea.Property(p=>p.Titulo).HasMaxLength(200).IsRequired();
-            tarea.Property(p=>p.Descripcion).HasMaxLength(500);
-            tarea.Property(p=>p.FechaCreacion).HasDefaultValueSql("getdate()");
-            tarea.Property(p=>p.PrioridadTarea).HasDefaultValue(Prioridad.Baja);
-            tarea.HasOne(p=>p.Categoria).WithMany(p=>p.Tareas).HasForeignKey(p=>p.CategoriaId);
+        List<Categoria> categoriasInit = new List<Categoria>();
+
+        categoriasInit.Add(new Categoria(){ CategoriaId = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e9c"), Nombre = "Actividades pendientes", Peso = 20});
+        categoriasInit.Add(new Categoria(){ CategoriaId = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e8c"), Nombre = "Actividades personales", Peso = 50});
+
+        modelBuilder.Entity<Categoria>(categoria =>
+        {
+            categoria.ToTable("categoria");
+            categoria.HasKey(p => p.CategoriaId);
+            categoria.Property( p=> p.Nombre).IsRequired().HasMaxLength(150);
+            categoria.Property(p=>p.Descripcion).IsRequired(false);
+            categoria.Property(p=>p.Peso);
+            
+            categoria.HasData(categoriasInit);
+        });
+
+        List<Tarea> tareasInit = new List<Tarea>();
+        tareasInit.Add(new Tarea(){ TareaID = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e7c"), 
+                                    CategoriaID = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e9c"), 
+                                    PrioridadTarea = Priority.Media,
+                                    Titulo = "Pago de servicios publicos",
+                                    FechaCreacion = DateTime.Now});
+                                
+        tareasInit.Add(new Tarea(){ TareaID = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e6c"), 
+                                    CategoriaID = Guid.Parse("1ebc42cb-da81-46c1-93cb-8291f5442e8c"), 
+                                    PrioridadTarea = Priority.Baja,
+                                    Titulo = "Terminar serie en netflix",
+                                    FechaCreacion = DateTime.Now});
+        
+
+        modelBuilder.Entity<Tarea>(tarea =>
+        {
+            tarea.ToTable("tarea");
+            tarea.HasKey(p => p.TareaID);
+
+            tarea.HasOne(p => p.Categoria).WithMany(p=>p.Tareas).HasForeignKey(p=>p.CategoriaID);
+
+            tarea.Property( p=> p.Titulo).IsRequired().HasMaxLength(200);
+            tarea.Property(p=>p.Descripcion).IsRequired(false);
+            tarea.Property(p=>p.PrioridadTarea);
+            tarea.Property(p=>p.FechaCreacion);
+            tarea.Ignore(p=>p.Resumen);
+
+            tarea.HasData(tareasInit);
         });
     }
 }
