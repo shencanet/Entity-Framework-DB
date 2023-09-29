@@ -17,7 +17,7 @@ public class TareasContext: DbContext
         categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657")});
         categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"),});
 
-    categoryList.Add(new Categoria() { CategoriaId = Guid.Parse('')});
+    categoryList.Add(new Categoria() { CategoriaId = Guid.Parse("fab3c6b5-7b27-47be-a3c9-c997f2b7067b")});
         modelBuilder.Entity<Categoria>(categoria=>{
             categoria.ToTable("Categoria");
             categoria.HasKey(p=>p.CategoriaId);
