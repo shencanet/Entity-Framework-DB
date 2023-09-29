@@ -1,39 +1,78 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using proyectoef.Models;
+using projectef;
 
-namespace proyectoef;
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-public class TareasContext: DbContext
+var builder = WebApplication.CreateBuilder(args);
+
+// builder.Services.AddDbContext<TasksContext>(p => p.UseInMemoryDatabase("tasksDB"));
+builder.Services.AddDbContext<TasksContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("psql"))
+);
+
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello World!");
+
+app.MapGet("/dbconexion", async ([FromServices] TasksContext dbContext) =>
 {
-    public DbSet<Categoria> Categorias {get;set;}
-    public DbSet<Tarea> Tareas {get;set;}
+    dbContext.Database.EnsureCreated();
+    // return Results.Ok("Databse in memory runing: " + dbContext.Database.IsInMemory());
+    return Results.Ok("Database in postgreSQL runing: " + dbContext.Database.IsNpgsql());
+});
 
-    public TareasContext(DbContextOptions<TareasContext> options) :base(options) { }
+app.MapGet("/api/tasks", async ([FromServices] TasksContext dbContext) => {
+    return Results.Ok(dbContext.Tasks.Include(p => p.Category));
+});
+
+app.MapGet("/api/tasks-priority-low", async ([FromServices] TasksContext dbContext) => {
+    return Results.Ok(dbContext.Tasks.Include(p => p.Category).Where(p => p.PriorityTask == projectef.Models.Priority.Low));
+});
+
+app.MapPost("/api/tasks", async ([FromServices] TasksContext dbContext, [FromBody] projectef.Models.Task task) => {
+
+    task.TaskId = Guid.NewGuid();
+    task.CreatedAt =  DateTime.Now;
+
+    // await dbContext.AddAsync(task);
+    await dbContext.Tasks.AddAsync(task);
+
+    await dbContext.SaveChangesAsync();
+
+    return Results.Created("/api/tasks", null);
+
+});
+
+app.MapPut("/api/tasks/{id}", async ([FromServices] TasksContext dbContext, [FromBody] projectef.Models.Task task, [FromRoute] Guid id) => {
+
+    var taskFound =  dbContext.Tasks.Find(id);
+
+    if(taskFound is null) return Results.NotFound();
+
+    taskFound.CategoryId = task.CategoryId != null ? task.CategoryId : taskFound.CategoryId;
+    taskFound.Title = task.Title != null ? task.Title : taskFound.Title;
+    taskFound.Description = task.Description != null ? task.Description : taskFound.Description;
+    taskFound.PriorityTask = task.PriorityTask != 0 ? task.PriorityTask : taskFound.PriorityTask;
+
+    await dbContext.SaveChangesAsync();
+
+    return Results.NoContent();
+
+});
+
+app.MapDelete("/api/tasks/{id}", async ([FromServices] TasksContext dbContext, [FromRoute] Guid id) => {
+
+    var taskFound =  dbContext.Tasks.Find(id);
+
+    if(taskFound is null) return Results.NotFound();
+
+    dbContext.Remove(taskFound);
     
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    await dbContext.SaveChangesAsync();
 
-       List<Category> categoryList = new List<Category>();
-        categoryList.Add(new Category() { CategoryId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c657"), Name = "Pending activities", Effort = 20});
-        categoryList.Add(new Category() { CategoryId = Guid.Parse("c4e0d0e7-5f06-48c7-9246-11fe12f2c602"), Name = "Personal activities", Effort = 50});
+    return Results.NoContent();
 
-    categoriasInit.Add(new Categoria() { CategoriaId = Guid.Parse('')});
-        modelBuilder.Entity<Categoria>(categoria=>{
-            categoria.ToTable("Categoria");
-            categoria.HasKey(p=>p.CategoriaId);
-            categoria.Property(c=>c.Nombre).HasMaxLength(150).IsRequired();
-            categoria.Property(p=>p.Descripcion).HasMaxLength(500);
-            categoria.Property(p=>p.Peso).HasDefaultValue(0);
-       });
+});
 
-        modelBuilder.Entity<Tarea>(tarea=>{
-            tarea.ToTable("Tarea");
-            tarea.HasKey(p=>p.TareaId);
-            tarea.Property(p=>p.Titulo).HasMaxLength(200).IsRequired();
-            tarea.Property(p=>p.Descripcion).HasMaxLength(500);
-            tarea.Property(p=>p.FechaCreacion).HasDefaultValueSql("getdate()");
-            tarea.Property(p=>p.PrioridadTarea).HasDefaultValue(Prioridad.Baja);
-            tarea.HasOne(p=>p.Categoria).WithMany(p=>p.Tareas).HasForeignKey(p=>p.CategoriaId);
-        });
-    }
-}
+app.Run();
