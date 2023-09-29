@@ -1,31 +1,35 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace projectef.Models;
+namespace proyectoef.Models;
 
-public class Task
+public class Tarea
 {
-    // [Key]
-    public Guid TaskId {get;set;}
+    [Key]
+    public Guid TareaId {get;set;}
+    
+    [ForeignKey("CategoriaId")]
+    public Guid CategoriaId {get;set;}
 
-    // [ForeignKey("CategoryId")]
-    public Guid CategoryId {get;set;}
+    [Required]
+    [MaxLength(200)]
+    public string Titulo {get;set;}
 
-    // [Required]
-    // [MaxLength(200)]
-    public string Title {get;set;}
-    public string Description {get;set;}
-    public Priority PriorityTask {get;set;}
-    public DateTime CreatedAt {get;set;}
-    public virtual Categoria Category {get;set;}
+    public string Descripcion {get;set;}
 
-    // [NotMapped]
-    public string Resume {get;set;}
+    public Prioridad PrioridadTarea {get;set;}
+
+    public DateTime FechaCreacion {get;set;}
+    
+    public virtual Categoria Categoria {get;set;}
+
+    [NotMapped]
+    public string Resumen {get;set;}
 }
 
-public enum Priority
+public enum Prioridad
 {
-    Low,
-    Medium,
-    High
+    Baja,
+    Media,
+    Alta
 }
